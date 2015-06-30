@@ -20,63 +20,19 @@ using DotNetNuke.Services.Authentication.OAuth;
 using DotNetNuke.Services.Localization;
 using DotNetNuke.Services.Mail;
 using DotNetNuke.Services.Social.Notifications;
-using DotNetNuke.UI.Skins.Controls;
 using DotNetNuke.Web.Api;
 
-namespace Connect.DNN.Modules.SkinControls.Controllers
+namespace Connect.DNN.Modules.SkinControls.Services.Authentication
 {
-    public class AuthController : DnnApiController
+    public class AuthenticationController : DnnApiController
     {
 
         public OAuthClientBase OAuthClient { get; set; }
         public UserAuthenticatedEventArgs AuthResult { get; set; }
 
-        [HttpGet]
-        [AllowAnonymous]
-        public HttpResponseMessage Google(int id, string mode)
-        {
-            OAuthClient = new GoogleClient(id, ToMode(mode)) { CallbackUri = CallbackUri("Google", id, mode) };
-            AuthorisationResult result = OAuthClient.Authorize();
-            if (result == AuthorisationResult.Denied)
-            {
-                return Request.CreateResponse(HttpStatusCode.ServiceUnavailable,
-                    Localization.GetString("PrivateConfirmationMessage"));
-            }
-            return Request.CreateResponse(HttpStatusCode.OK);
-        }
-
-        [HttpGet]
-        [AllowAnonymous]
-        public HttpResponseMessage Live(int id, string mode)
-        {
-            OAuthClient = new LiveClient(id, ToMode(mode)) { CallbackUri = CallbackUri("Live", id, mode) };
-            AuthorisationResult result = OAuthClient.Authorize();
-            if (result == AuthorisationResult.Denied)
-            {
-                return Request.CreateResponse(HttpStatusCode.ServiceUnavailable,
-                    Localization.GetString("PrivateConfirmationMessage"));
-            }
-            return Request.CreateResponse(HttpStatusCode.OK);
-        }
-
-        [HttpGet]
-        [AllowAnonymous]
-        public HttpResponseMessage Twitter(int id, string mode)
-        {
-            OAuthClient = new TwitterClient(id, ToMode(mode)) { CallbackUri = CallbackUri("Twitter", id, mode) };
-            OAuthClient.CallbackUri = new Uri(OAuthClient.CallbackUri + "?state=Twitter");
-            AuthorisationResult result = OAuthClient.Authorize();
-            if (result == AuthorisationResult.Denied)
-            {
-                return Request.CreateResponse(HttpStatusCode.ServiceUnavailable,
-                    Localization.GetString("PrivateConfirmationMessage"));
-            }
-            return Request.CreateResponse(HttpStatusCode.OK);
-        }
-
         public Uri CallbackUri(string provider, int id, string mode)
         {
-            return new Uri(string.Format("{0}{1}/Reply/{2}?mode={3}", ApiUrl(), provider, id, mode));
+            return new Uri(String.Format("{0}{1}/Reply/{2}?mode={3}", ApiUrl(), provider, id, mode));
         }
 
         public string ApiUrl()
@@ -91,6 +47,20 @@ namespace Connect.DNN.Modules.SkinControls.Controllers
                 return AuthMode.Register;
             }
             return AuthMode.Login;
+        }
+
+        public static void SetReturnUrlCookie(string returnurl)
+        {
+            HttpContext.Current.Response.Cookies.Set(new HttpCookie("returnurl", returnurl)
+            {
+                Expires = DateTime.Now.AddMinutes(5),
+                Path =
+                    (!String.IsNullOrEmpty(Globals.ApplicationPath) ? Globals.ApplicationPath : "/")
+            });
+        }
+
+        protected virtual void AddCustomProperties(NameValueCollection properties)
+        {
         }
 
         protected virtual void OnUserAuthenticated(UserAuthenticatedEventArgs ea)
@@ -153,7 +123,7 @@ namespace Connect.DNN.Modules.SkinControls.Controllers
             }
 
             userToRegister.Username = PortalSettings.Registration.UseEmailAsUserName ? userToRegister.Email : AuthResult.UserToken;
-            
+
             // let's check if we already have a user with this email address
             int total = 0;
             var existingUsers = UserController.GetUsersByEmail(PortalSettings.PortalId, userToRegister.Email, 1, 1, ref total);
@@ -163,7 +133,7 @@ namespace Connect.DNN.Modules.SkinControls.Controllers
             }
             else
             {
-                if (!string.IsNullOrEmpty(PortalSettings.Registration.DisplayNameFormat))
+                if (!String.IsNullOrEmpty(PortalSettings.Registration.DisplayNameFormat))
                 {
                     userToRegister.UpdateDisplayName(PortalSettings.Registration.DisplayNameFormat);
                 }
@@ -179,7 +149,7 @@ namespace Connect.DNN.Modules.SkinControls.Controllers
             }
             if (!String.IsNullOrEmpty(AuthResult.AuthenticationType))
             {
-                AuthenticationController.AddUserAuthentication(userToRegister.UserID, AuthResult.AuthenticationType, AuthResult.UserToken);
+                DotNetNuke.Services.Authentication.AuthenticationController.AddUserAuthentication(userToRegister.UserID, AuthResult.AuthenticationType, AuthResult.UserToken);
             }
 
             return userToRegister;
@@ -209,7 +179,7 @@ namespace Connect.DNN.Modules.SkinControls.Controllers
                         strMessage += Mail.SendMail(newUser, MessageType.UserRegistrationPrivate, PortalSettings);
 
                         //show a message that a portal administrator has to verify the user credentials
-                        if (string.IsNullOrEmpty(strMessage))
+                        if (String.IsNullOrEmpty(strMessage))
                         {
                             strMessage += Localization.GetString("PrivateConfirmationMessage", Localization.SharedResourceFile);
                         }
@@ -280,6 +250,5 @@ namespace Connect.DNN.Modules.SkinControls.Controllers
             const string text = "EMAIL_USER_REGISTRATION_ADMINISTRATOR_SUBJECT";
             return LocalizeNotificationText(text, locale, newUser, portalSettings);
         }
-
     }
 }

@@ -106,8 +106,10 @@
   <ItemGroup>
     <Compile Include="Common\Common.cs" />
     <Compile Include="Common\RouteMapper.cs" />
-    <Compile Include="Controllers\AuthController.cs" />
     <Compile Include="Controllers\FacebookController.cs" />
+    <Compile Include="Controllers\GoogleController.cs" />
+    <Compile Include="Controllers\LiveController.cs" />
+    <Compile Include="Controllers\TwitterController.cs" />
     <Compile Include="Razor\Helpers\CtlHelper.cs" />
     <Compile Include="Razor\RazorControl.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -119,11 +121,15 @@
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Razor\SkinControlWebPage.cs" />
+    <Compile Include="Services\Authentication\AuthenticationController.cs" />
     <Compile Include="Services\Authentication\Facebook\FacebookClient.cs" />
     <Compile Include="Services\Authentication\Facebook\FacebookUserData.cs" />
     <Compile Include="Services\Authentication\Google\GoogleClient.cs" />
+    <Compile Include="Services\Authentication\Google\GoogleUserData.cs" />
     <Compile Include="Services\Authentication\Live\LiveClient.cs" />
+    <Compile Include="Services\Authentication\Live\LiveUserData.cs" />
     <Compile Include="Services\Authentication\Twitter\TwitterClient.cs" />
+    <Compile Include="Services\Authentication\Twitter\TwitterUserData.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="js\Connect.SkinControls.js" />

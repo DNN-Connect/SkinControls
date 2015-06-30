@@ -1,9 +1,8 @@
-﻿using System.Collections.Specialized;
-using System.Net;
+﻿using System.Net;
 using System.Net.Http;
 using System.Web;
 using System.Web.Http;
-using Connect.DNN.Modules.SkinControls.Services.Authentication.Facebook;
+using Connect.DNN.Modules.SkinControls.Services.Authentication.Live;
 using DotNetNuke.Services.Authentication;
 using DotNetNuke.Services.Authentication.OAuth;
 using DotNetNuke.Services.Localization;
@@ -11,14 +10,14 @@ using AuthenticationController = Connect.DNN.Modules.SkinControls.Services.Authe
 
 namespace Connect.DNN.Modules.SkinControls.Controllers
 {
-    public class FacebookController : AuthenticationController
+    public class LiveController : AuthenticationController
     {
         [HttpGet]
         [AllowAnonymous]
         public HttpResponseMessage Call(int id, string mode, string returnurl)
         {
             SetReturnUrlCookie(returnurl);
-            OAuthClient = new FacebookClient(id, ToMode(mode)) { CallbackUri = CallbackUri("Facebook", id, mode) };
+            OAuthClient = new LiveClient(id, ToMode(mode)) { CallbackUri = CallbackUri("Live", id, mode) };
             AuthorisationResult result = OAuthClient.Authorize();
             if (result == AuthorisationResult.Denied)
             {
@@ -32,7 +31,7 @@ namespace Connect.DNN.Modules.SkinControls.Controllers
         [AllowAnonymous]
         public HttpResponseMessage Reply(int id, string mode)
         {
-            OAuthClient = new FacebookClient(id, ToMode(mode)) { CallbackUri = CallbackUri("Facebook", id, mode) };
+            OAuthClient = new LiveClient(id, ToMode(mode)) { CallbackUri = CallbackUri("Live", id, mode) };
             bool shouldAuthorize = OAuthClient.IsCurrentService() && OAuthClient.HaveVerificationCode();
             if (ToMode(mode) == AuthMode.Login)
             {
@@ -42,11 +41,11 @@ namespace Connect.DNN.Modules.SkinControls.Controllers
             {
                 if (OAuthClient.Authorize() == AuthorisationResult.Authorized)
                 {
-                    OAuthClient.AuthenticateUser(OAuthClient.GetCurrentUser<FacebookUserData>(), PortalSettings, GetIpAddress(), AddCustomProperties, OnUserAuthenticated);
+                    OAuthClient.AuthenticateUser(OAuthClient.GetCurrentUser<LiveUserData>(), PortalSettings, GetIpAddress(), AddCustomProperties, OnUserAuthenticated);
                     if (AuthResult.User == null && ToMode(mode) == AuthMode.Register)
                     {
                         var newUser = RegisterUser();
-                        OAuthClient.AuthenticateUser(OAuthClient.GetCurrentUser<FacebookUserData>(), PortalSettings, GetIpAddress(), AddCustomProperties, OnUserAuthenticated);
+                        OAuthClient.AuthenticateUser(OAuthClient.GetCurrentUser<LiveUserData>(), PortalSettings, GetIpAddress(), AddCustomProperties, OnUserAuthenticated);
                     }
                 }
             }
@@ -56,11 +55,5 @@ namespace Connect.DNN.Modules.SkinControls.Controllers
             return Request.CreateResponse(HttpStatusCode.OK);
         }
 
-        protected override void AddCustomProperties(NameValueCollection properties)
-        {
-            base.AddCustomProperties(properties);
-
-            properties.Add("Facebook", OAuthClient.GetCurrentUser<FacebookUserData>().Link.ToString());
-        }
     }
 }
