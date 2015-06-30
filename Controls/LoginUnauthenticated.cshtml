@@ -1,0 +1,12 @@
+﻿@using System.Web
+@inherits Connect.DNN.Modules.SkinControls.Razor.SkinControlWebPage
+@{
+ string returnUrl = HttpContext.Current.Request.RawUrl;
+ if (returnUrl.IndexOf("?returnurl=") != -1)
+ {
+  returnUrl = returnUrl.Substring(0, returnUrl.IndexOf("?returnurl="));
+ }
+ returnUrl = HttpUtility.UrlEncode(returnUrl);
+
+}
+<a href="@DotNetNuke.Common.Globals.LoginURL(returnUrl, (Request.QueryString["override"] != null))" class="@Ctl.Item("CssClass")">Login</a>
