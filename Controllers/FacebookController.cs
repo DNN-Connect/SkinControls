@@ -1,6 +1,8 @@
-﻿using System.Collections.Specialized;
+﻿using System;
+using System.Collections.Specialized;
 using System.Net;
 using System.Net.Http;
+using System.Web;
 using System.Web.Http;
 using Connect.DNN.Modules.SkinControls.Services.Authentication.Facebook;
 using DotNetNuke.Services.Authentication;
@@ -13,8 +15,13 @@ namespace Connect.DNN.Modules.SkinControls.Controllers
     {
         [HttpGet]
         [AllowAnonymous]
-        public HttpResponseMessage Call(int id, string mode)
+        public HttpResponseMessage Call(int id, string mode, string returnurl)
         {
+            HttpContext.Current.Response.Cookies.Set(new HttpCookie("returnurl", returnurl)
+            {
+                Expires = DateTime.Now.AddMinutes(5),
+                Path = (!string.IsNullOrEmpty(DotNetNuke.Common.Globals.ApplicationPath) ? DotNetNuke.Common.Globals.ApplicationPath : "/")
+            });
             OAuthClient = new FacebookClient(id, ToMode(mode)) { CallbackUri = CallbackUri("Facebook", id, mode) };
             AuthorisationResult result = OAuthClient.Authorize();
             if (result == AuthorisationResult.Denied)
@@ -40,9 +47,17 @@ namespace Connect.DNN.Modules.SkinControls.Controllers
                 if (OAuthClient.Authorize() == AuthorisationResult.Authorized)
                 {
                     OAuthClient.AuthenticateUser(OAuthClient.GetCurrentUser<FacebookUserData>(), PortalSettings, GetIpAddress(), AddFacebookProperties, OnUserAuthenticated);
+                    if (AuthResult.User == null)
+                    {
+                        var newUser = RegisterUser();
+                        OAuthClient.AuthenticateUser(OAuthClient.GetCurrentUser<FacebookUserData>(), PortalSettings, GetIpAddress(), AddFacebookProperties, OnUserAuthenticated);
+                    }
                 }
             }
-            return Request.CreateResponse(HttpStatusCode.OK, AuthResult);
+            // redirect
+            string returnurl = HttpUtility.UrlDecode(HttpContext.Current.Request.Cookies["returnurl"].Value);
+            HttpContext.Current.Response.Redirect(returnurl);
+            return Request.CreateResponse(HttpStatusCode.OK);
         }
 
         protected virtual void AddFacebookProperties(NameValueCollection properties)

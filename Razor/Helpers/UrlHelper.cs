@@ -1,4 +1,5 @@
 ﻿
+using System.Web;
 using DotNetNuke.Common;
 using DotNetNuke.Entities.Portals;
 
@@ -13,9 +14,14 @@ namespace Connect.DNN.Modules.SkinControls.Razor.Helpers
             _context = context;
         }
 
-        public string NavigateToPage()
+        public string PageUrl()
         {
             return Globals.NavigateURL(_context.ActiveTab.TabID);
+        }
+
+        public string EncodedPageUrl()
+        {
+            return HttpUtility.UrlEncode(Globals.NavigateURL(_context.ActiveTab.TabID));
         }
 
         public string NavigateAction(string action)
