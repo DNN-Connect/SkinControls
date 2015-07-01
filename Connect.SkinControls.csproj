@@ -41,6 +41,11 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="ClientDependency.Core, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>_References\ClientDependency.Core.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
     <Reference Include="DotNetNuke, Version=7.2.0.607, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>_References\DotNetNuke.dll</HintPath>
@@ -121,6 +126,7 @@
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
     <Compile Include="Razor\SkinControlWebPage.cs" />
+    <Compile Include="RemoveDefaultCss.cs" />
     <Compile Include="Services\Authentication\AuthenticationController.cs" />
     <Compile Include="Services\Authentication\Facebook\FacebookClient.cs" />
     <Compile Include="Services\Authentication\Facebook\FacebookUserData.cs" />
