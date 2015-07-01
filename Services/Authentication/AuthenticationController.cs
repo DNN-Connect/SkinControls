@@ -2,13 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Globalization;
-using System.Net;
-using System.Net.Http;
 using System.Web;
-using System.Web.Http;
-using Connect.DNN.Modules.SkinControls.Services.Authentication.Google;
-using Connect.DNN.Modules.SkinControls.Services.Authentication.Live;
-using Connect.DNN.Modules.SkinControls.Services.Authentication.Twitter;
 using DotNetNuke.Common;
 using DotNetNuke.Common.Utilities;
 using DotNetNuke.Entities.Portals;
@@ -250,5 +244,36 @@ namespace Connect.DNN.Modules.SkinControls.Services.Authentication
             const string text = "EMAIL_USER_REGISTRATION_ADMINISTRATOR_SUBJECT";
             return LocalizeNotificationText(text, locale, newUser, portalSettings);
         }
+
+        public static List<AuthenticationInfo> GetActiveAuthenticationProviders(int portalId)
+        {
+            return CBO.GetCachedObject<List<AuthenticationInfo>>(
+        new CacheItemArgs("GetActiveAuthenticationProviders" + portalId, DataCache.AuthenticationServicesCacheTimeOut, DataCache.AuthenticationServicesCachePriority, portalId),
+        GetActiveAuthenticationProvidersCb);
+        }
+
+        private static List<AuthenticationInfo> GetActiveAuthenticationProvidersCb(CacheItemArgs cacheItemArgs)
+        {
+            var enabled = new List<AuthenticationInfo>();
+            foreach (AuthenticationInfo authService in DotNetNuke.Services.Authentication.AuthenticationController.GetEnabledAuthenticationServices())
+            {
+                if (authService.AuthenticationType == "DNN")
+                {
+                    if (AuthenticationConfig.GetConfig((int)cacheItemArgs.Params[0]).Enabled)
+                    {
+                        enabled.Add(authService);
+                    }
+                }
+                else
+                {
+                    if (OAuthConfigBase.GetConfig(authService.AuthenticationType, (int)cacheItemArgs.Params[0]).Enabled)
+                    {
+                        enabled.Add(authService);
+                    }
+                }
+            }
+            return enabled;
+        }
+
     }
 }
