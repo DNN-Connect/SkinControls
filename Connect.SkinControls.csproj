@@ -128,6 +128,7 @@
     <Compile Include="Razor\SkinControlWebPage.cs" />
     <Compile Include="RemoveDefaultCss.cs" />
     <Compile Include="Services\Authentication\AuthenticationController.cs" />
+    <Compile Include="Controllers\DnnController.cs" />
     <Compile Include="Services\Authentication\Facebook\FacebookClient.cs" />
     <Compile Include="Services\Authentication\Facebook\FacebookUserData.cs" />
     <Compile Include="Services\Authentication\Google\GoogleClient.cs" />
