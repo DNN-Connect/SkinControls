@@ -66,7 +66,7 @@ namespace Connect.DNN.Modules.SkinControls.Services.Authentication
             {
                 if (ea.User.Profile != null && ea.User.Profile.PreferredLocale != null)
                 {
-                    Localization.SetLanguage(ea.User.Profile.PreferredLocale);
+                    DotNetNuke.Services.Localization.Localization.SetLanguage(ea.User.Profile.PreferredLocale);
                 }
                 UserController.UserLogin(PortalSettings.PortalId, ea.User, PortalSettings.PortalName, GetIpAddress(),
                     KeepLoggedIn);
@@ -181,7 +181,7 @@ namespace Connect.DNN.Modules.SkinControls.Services.Authentication
                         //show a message that a portal administrator has to verify the user credentials
                         if (String.IsNullOrEmpty(strMessage))
                         {
-                            strMessage += Localization.GetString("PrivateConfirmationMessage", Localization.SharedResourceFile);
+                            strMessage += DotNetNuke.Services.Localization.Localization.GetString("PrivateConfirmationMessage", DotNetNuke.Services.Localization.Localization.SharedResourceFile);
                         }
                         break;
                     case (int)Globals.PortalRegistrationType.PublicRegistration:
@@ -194,7 +194,7 @@ namespace Connect.DNN.Modules.SkinControls.Services.Authentication
                         break;
                 }
                 //store preferredlocale in cookie
-                Localization.SetLanguage(newUser.Profile.PreferredLocale);
+                DotNetNuke.Services.Localization.Localization.SetLanguage(newUser.Profile.PreferredLocale);
             }
             else
             {
@@ -242,7 +242,7 @@ namespace Connect.DNN.Modules.SkinControls.Services.Authentication
         private string LocalizeNotificationText(string text, string locale, UserInfo user, PortalSettings portalSettings)
         {
             //This method could need a custom ArrayList in future notification types. Currently it is null
-            return Localization.GetSystemMessage(locale, portalSettings, text, user, Localization.GlobalResourceFile, null, "", portalSettings.AdministratorId);
+            return DotNetNuke.Services.Localization.Localization.GetSystemMessage(locale, portalSettings, text, user, DotNetNuke.Services.Localization.Localization.GlobalResourceFile, null, "", portalSettings.AdministratorId);
         }
 
         private string GetNotificationSubject(string locale, UserInfo newUser, PortalSettings portalSettings)

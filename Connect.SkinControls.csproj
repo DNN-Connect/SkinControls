@@ -137,6 +137,7 @@
     <Compile Include="Services\Authentication\Live\LiveUserData.cs" />
     <Compile Include="Services\Authentication\Twitter\TwitterClient.cs" />
     <Compile Include="Services\Authentication\Twitter\TwitterUserData.cs" />
+    <Compile Include="Services\Localization\LocalizationController.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="js\Connect.SkinControls.js" />
