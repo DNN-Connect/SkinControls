@@ -18,15 +18,17 @@ using DotNetNuke.Web.Api;
 
 namespace Connect.DNN.Modules.SkinControls.Services.Authentication
 {
-    public class AuthenticationController : DnnApiController
+    public abstract class AuthenticationController : DnnApiController
     {
 
         public OAuthClientBase OAuthClient { get; set; }
         public UserAuthenticatedEventArgs AuthResult { get; set; }
+        public bool KeepLoggedIn { get; set; }
+        public abstract string Service { get; }
 
-        public Uri CallbackUri(string provider, int id, string mode)
+        public Uri CallbackUri(string provider, int id, string mode, bool keep)
         {
-            return new Uri(String.Format("{0}{1}/Reply/{2}?mode={3}", ApiUrl(), provider, id, mode));
+            return new Uri(String.Format("{0}{1}/Reply/{2}?mode={3}&keep={4}", ApiUrl(), provider, id, mode, keep));
         }
 
         public string ApiUrl()
@@ -67,7 +69,7 @@ namespace Connect.DNN.Modules.SkinControls.Services.Authentication
                     Localization.SetLanguage(ea.User.Profile.PreferredLocale);
                 }
                 UserController.UserLogin(PortalSettings.PortalId, ea.User, PortalSettings.PortalName, GetIpAddress(),
-                    false);
+                    KeepLoggedIn);
             }
         }
 
@@ -116,11 +118,9 @@ namespace Connect.DNN.Modules.SkinControls.Services.Authentication
                 return null;
             }
 
-            userToRegister.Username = PortalSettings.Registration.UseEmailAsUserName ? userToRegister.Email : AuthResult.UserToken;
-
             // let's check if we already have a user with this email address
             int total = 0;
-            var existingUsers = UserController.GetUsersByEmail(PortalSettings.PortalId, userToRegister.Email, 1, 1, ref total);
+            var existingUsers = UserController.GetUsersByEmail(PortalSettings.PortalId, userToRegister.Email, 0, 1, ref total);
             if (existingUsers.Count > 0)
             {
                 userToRegister = (UserInfo)existingUsers[0];

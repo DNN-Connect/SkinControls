@@ -12,12 +12,17 @@ namespace Connect.DNN.Modules.SkinControls.Controllers
 {
     public class GoogleController : AuthenticationController
     {
+        public override string Service
+        {
+            get { return "Google"; }
+        }
+
         [HttpGet]
         [AllowAnonymous]
-        public HttpResponseMessage Call(int id, string mode, string returnurl)
+        public HttpResponseMessage Call(int id, string mode, string returnurl, bool keep)
         {
             SetReturnUrlCookie(returnurl);
-            OAuthClient = new GoogleClient(id, ToMode(mode)) { CallbackUri = CallbackUri("Google", id, mode) };
+            OAuthClient = new GoogleClient(id, ToMode(mode)) { CallbackUri = CallbackUri("Google", id, mode, keep) };
             AuthorisationResult result = OAuthClient.Authorize();
             if (result == AuthorisationResult.Denied)
             {
@@ -29,10 +34,11 @@ namespace Connect.DNN.Modules.SkinControls.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public HttpResponseMessage Reply(int id, string mode)
+        public HttpResponseMessage Reply(int id, string mode, bool keep)
         {
-            OAuthClient = new GoogleClient(id, ToMode(mode)) { CallbackUri = CallbackUri("Google", id, mode) };
+            OAuthClient = new GoogleClient(id, ToMode(mode)) { CallbackUri = CallbackUri("Google", id, mode, keep) };
             bool shouldAuthorize = OAuthClient.IsCurrentService() && OAuthClient.HaveVerificationCode();
+            KeepLoggedIn = keep;
             if (ToMode(mode) == AuthMode.Login)
             {
                 shouldAuthorize = shouldAuthorize || OAuthClient.IsCurrentUserAuthorized();
@@ -42,7 +48,7 @@ namespace Connect.DNN.Modules.SkinControls.Controllers
                 if (OAuthClient.Authorize() == AuthorisationResult.Authorized)
                 {
                     OAuthClient.AuthenticateUser(OAuthClient.GetCurrentUser<GoogleUserData>(), PortalSettings, GetIpAddress(), AddCustomProperties, OnUserAuthenticated);
-                    if (AuthResult.User == null && ToMode(mode) == AuthMode.Register)
+                    if (AuthResult.User == null && (ToMode(mode) == AuthMode.Register | mode.ToLower() == "mixed"))
                     {
                         var newUser = RegisterUser();
                         OAuthClient.AuthenticateUser(OAuthClient.GetCurrentUser<GoogleUserData>(), PortalSettings, GetIpAddress(), AddCustomProperties, OnUserAuthenticated);
@@ -54,5 +60,6 @@ namespace Connect.DNN.Modules.SkinControls.Controllers
             HttpContext.Current.Response.Redirect(returnurl);
             return Request.CreateResponse(HttpStatusCode.OK);
         }
+
     }
 }

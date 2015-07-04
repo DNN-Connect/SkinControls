@@ -12,6 +12,11 @@ namespace Connect.DNN.Modules.SkinControls.Controllers
 {
     public class DnnController : AuthenticationController
     {
+        public override string Service
+        {
+            get { return "DNN"; }
+        }
+
         public class loginDTO
         {
             public int PortalId { get; set; }

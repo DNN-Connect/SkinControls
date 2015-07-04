@@ -13,12 +13,17 @@ namespace Connect.DNN.Modules.SkinControls.Controllers
 {
     public class TwitterController : AuthenticationController
     {
+        public override string Service
+        {
+            get { return "Twitter"; }
+        }
+
         [HttpGet]
         [AllowAnonymous]
-        public HttpResponseMessage Call(int id, string mode, string returnurl)
+        public HttpResponseMessage Call(int id, string mode, string returnurl, bool keep)
         {
             SetReturnUrlCookie(returnurl);
-            OAuthClient = new TwitterClient(id, ToMode(mode)) { CallbackUri = CallbackUri("Twitter", id, mode) };
+            OAuthClient = new TwitterClient(id, ToMode(mode)) { CallbackUri = CallbackUri("Twitter", id, mode, keep) };
             OAuthClient.CallbackUri = new Uri(OAuthClient.CallbackUri + "?state=Twitter");
             AuthorisationResult result = OAuthClient.Authorize();
             if (result == AuthorisationResult.Denied)
@@ -31,10 +36,11 @@ namespace Connect.DNN.Modules.SkinControls.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public HttpResponseMessage Reply(int id, string mode)
+        public HttpResponseMessage Reply(int id, string mode, bool keep)
         {
-            OAuthClient = new TwitterClient(id, ToMode(mode)) { CallbackUri = CallbackUri("Twitter", id, mode) };
+            OAuthClient = new TwitterClient(id, ToMode(mode)) { CallbackUri = CallbackUri("Twitter", id, mode, keep) };
             bool shouldAuthorize = OAuthClient.IsCurrentService() && OAuthClient.HaveVerificationCode();
+            KeepLoggedIn = keep;
             if (ToMode(mode) == AuthMode.Login)
             {
                 shouldAuthorize = shouldAuthorize || OAuthClient.IsCurrentUserAuthorized();
@@ -44,7 +50,7 @@ namespace Connect.DNN.Modules.SkinControls.Controllers
                 if (OAuthClient.Authorize() == AuthorisationResult.Authorized)
                 {
                     OAuthClient.AuthenticateUser(OAuthClient.GetCurrentUser<TwitterUserData>(), PortalSettings, GetIpAddress(), AddCustomProperties, OnUserAuthenticated);
-                    if (AuthResult.User == null && ToMode(mode) == AuthMode.Register)
+                    if (AuthResult.User == null && (ToMode(mode) == AuthMode.Register | mode.ToLower() == "mixed"))
                     {
                         var newUser = RegisterUser();
                         OAuthClient.AuthenticateUser(OAuthClient.GetCurrentUser<TwitterUserData>(), PortalSettings, GetIpAddress(), AddCustomProperties, OnUserAuthenticated);

@@ -12,12 +12,17 @@ namespace Connect.DNN.Modules.SkinControls.Controllers
 {
     public class LiveController : AuthenticationController
     {
+        public override string Service
+        {
+            get { return "Live"; }
+        }
+
         [HttpGet]
         [AllowAnonymous]
-        public HttpResponseMessage Call(int id, string mode, string returnurl)
+        public HttpResponseMessage Call(int id, string mode, string returnurl, bool keep)
         {
             SetReturnUrlCookie(returnurl);
-            OAuthClient = new LiveClient(id, ToMode(mode)) { CallbackUri = CallbackUri("Live", id, mode) };
+            OAuthClient = new LiveClient(id, ToMode(mode)) { CallbackUri = CallbackUri("Live", id, mode, keep) };
             AuthorisationResult result = OAuthClient.Authorize();
             if (result == AuthorisationResult.Denied)
             {
@@ -29,17 +34,18 @@ namespace Connect.DNN.Modules.SkinControls.Controllers
 
         [HttpGet]
         [AllowAnonymous]
-        public HttpResponseMessage Reply(int id, string mode)
+        public HttpResponseMessage Reply(int id, string mode, bool keep)
         {
-            OAuthClient = new LiveClient(id, ToMode(mode)) { CallbackUri = CallbackUri("Live", id, mode) };
+            OAuthClient = new LiveClient(id, ToMode(mode)) { CallbackUri = CallbackUri("Live", id, mode, keep) };
             bool shouldAuthorize = OAuthClient.IsCurrentService() && OAuthClient.HaveVerificationCode();
+            KeepLoggedIn = keep;
             if (ToMode(mode) == AuthMode.Login)
             {
                 shouldAuthorize = shouldAuthorize || OAuthClient.IsCurrentUserAuthorized();
             }
             if (shouldAuthorize)
             {
-                if (OAuthClient.Authorize() == AuthorisationResult.Authorized)
+                if (AuthResult.User == null && (ToMode(mode) == AuthMode.Register | mode.ToLower() == "mixed"))
                 {
                     OAuthClient.AuthenticateUser(OAuthClient.GetCurrentUser<LiveUserData>(), PortalSettings, GetIpAddress(), AddCustomProperties, OnUserAuthenticated);
                     if (AuthResult.User == null && ToMode(mode) == AuthMode.Register)
