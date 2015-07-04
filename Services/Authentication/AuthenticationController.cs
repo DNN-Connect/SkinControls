@@ -140,10 +140,16 @@ namespace Connect.DNN.Modules.SkinControls.Services.Authentication
                     throw new Exception(CreateStatus.ToString());
                 }
                 CompleteUserCreation(CreateStatus, userToRegister, true, true);
+                if (PortalSettings.Registration.UseEmailAsUserName)
+                {
+                    UserController.ChangeUsername(userToRegister.UserID, userToRegister.Email);
+                }
             }
             if (!String.IsNullOrEmpty(AuthResult.AuthenticationType))
             {
-                DotNetNuke.Services.Authentication.AuthenticationController.AddUserAuthentication(userToRegister.UserID, AuthResult.AuthenticationType, AuthResult.UserToken);
+                //string token = Service + "-" + AuthResult.Id;
+                string token = AuthResult.UserToken;
+                DotNetNuke.Services.Authentication.AuthenticationController.AddUserAuthentication(userToRegister.UserID, AuthResult.AuthenticationType, token);
             }
 
             return userToRegister;
