@@ -73,7 +73,7 @@ namespace Connect.DNN.Modules.SkinControls.Razor
                     var mv = (SkinControlWebPage<T>)Webpage;
                     mv.Model = model;
                 }
-                Webpage.ExecutePageHierarchy(new WebPageContext(HttpContext, Webpage, null), writer, Webpage);
+                Webpage.ExecutePageHierarchy(new WebPageContext(HttpContext, Webpage, model), writer, Webpage);
             }
             catch (Exception exc)
             {
