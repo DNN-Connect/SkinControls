@@ -23,6 +23,13 @@ namespace Connect.DNN.Modules.SkinControls.Razor
         {
             base.ConfigurePage(parentPage);
             Context = parentPage.Context;
+
+            SkinControlWebPage parent = (SkinControlWebPage)parentPage;
+            Ctl = parent.Ctl;
+            Dnn = parent.Dnn;
+            Html = parent.Html;
+            Url = parent.Url;
+
         }
 
         #endregion
@@ -30,6 +37,19 @@ namespace Connect.DNN.Modules.SkinControls.Razor
 
     public abstract class SkinControlWebPage<T> : SkinControlWebPage
     {
+        #region BaseClass Overrides
+
+        public override void ExecutePageHierarchy()
+        {
+            if (PageData.Count > 0)
+            {
+                Model = PageData[0];
+            }
+            base.ExecutePageHierarchy();
+        }
+
+        #endregion
+
         public T Model { get; set; }
     }
 }
