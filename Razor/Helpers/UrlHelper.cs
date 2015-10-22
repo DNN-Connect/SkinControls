@@ -1,5 +1,6 @@
 ﻿
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Web;
 using DotNetNuke.Common;
@@ -66,6 +67,30 @@ namespace Connect.DNN.Modules.SkinControls.Razor.Helpers
                 }
             }
             return url;
+        }
+
+        public int SearchTabId()
+        {
+            var searchTabId = _context.SearchTabId;
+            if (searchTabId == Null.NullInteger)
+            {
+                ArrayList arrModules = ModuleController.Instance.GetModulesByDefinition(_context.PortalId, "Search Results");
+                if (arrModules.Count > 1)
+                {
+                    foreach (ModuleInfo searchModule in arrModules)
+                    {
+                        if (searchModule.CultureCode == _context.CultureCode)
+                        {
+                            searchTabId = searchModule.TabID;
+                        }
+                    }
+                }
+                else if (arrModules.Count == 1)
+                {
+                    searchTabId = ((ModuleInfo)arrModules[0]).TabID;
+                }
+            }
+            return searchTabId;
         }
 
         public string MessagesUrl(int userId)
