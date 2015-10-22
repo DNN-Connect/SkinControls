@@ -19,7 +19,6 @@ namespace Connect.DNN.Modules.SkinControls.Controllers
 
         public class loginDTO
         {
-            public int PortalId { get; set; }
             public string Username { get; set; }
             public string Password { get; set; }
             public bool sc { get; set; }
@@ -35,14 +34,14 @@ namespace Connect.DNN.Modules.SkinControls.Controllers
                 PortalSecurity.FilterFlag.NoScripting |
                 PortalSecurity.FilterFlag.NoAngleBrackets |
                 PortalSecurity.FilterFlag.NoMarkup);
-            var objUser = UserController.ValidateUser(postData.PortalId, userName, postData.Password, "DNN", string.Empty, PortalSettings.PortalName, AuthenticationLoginBase.GetIPAddress(), ref loginStatus);
+            var objUser = UserController.ValidateUser(PortalSettings.PortalId, userName, postData.Password, "DNN", string.Empty, PortalSettings.PortalName, AuthenticationLoginBase.GetIPAddress(), ref loginStatus);
             switch (loginStatus)
             {
                 case UserLoginStatus.LOGIN_SUCCESS:
                 case UserLoginStatus.LOGIN_SUPERUSER:
                 case UserLoginStatus.LOGIN_INSECUREADMINPASSWORD:
                 case UserLoginStatus.LOGIN_INSECUREHOSTPASSWORD:
-                    UserController.UserLogin(postData.PortalId, objUser, "", AuthenticationLoginBase.GetIPAddress(), postData.sc);
+                    UserController.UserLogin(PortalSettings.PortalId, objUser, "", AuthenticationLoginBase.GetIPAddress(), postData.sc);
                     return Request.CreateResponse(HttpStatusCode.OK, loginStatus);
                 default:
                     return Request.CreateResponse(HttpStatusCode.Unauthorized, loginStatus);
