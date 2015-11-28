@@ -42,9 +42,9 @@ namespace Connect.DNN.Modules.SkinControls.Controllers
                 case UserLoginStatus.LOGIN_INSECUREADMINPASSWORD:
                 case UserLoginStatus.LOGIN_INSECUREHOSTPASSWORD:
                     UserController.UserLogin(PortalSettings.PortalId, objUser, "", AuthenticationLoginBase.GetIPAddress(), postData.sc);
-                    return Request.CreateResponse(HttpStatusCode.OK, loginStatus);
+                    return Request.CreateResponse(HttpStatusCode.OK, loginStatus.ToString());
                 default:
-                    return Request.CreateResponse(HttpStatusCode.Unauthorized, loginStatus);
+                    return Request.CreateResponse(HttpStatusCode.Unauthorized, loginStatus.ToString());
             }
         }
     }
