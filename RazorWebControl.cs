@@ -19,7 +19,7 @@ namespace Connect.DNN.Modules.SkinControls
         {
             get
             {
-                return string.IsNullOrEmpty(_localResourceFile) ? Localization.SharedResourceFile : _localResourceFile;
+                return string.IsNullOrEmpty(_localResourceFile) ? this.Parent.AppRelativeTemplateSourceDirectory + Localization.LocalResourceDirectory + "/SharedResources.resx" : _localResourceFile;
             }
             set { _localResourceFile = value; }
         }
