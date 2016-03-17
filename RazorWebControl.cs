@@ -45,7 +45,7 @@ namespace Connect.DNN.Modules.SkinControls
                     }
                     if (ControlPath.ToLower() == "skin")
                     {
-                        ControlPath = PortalSettings.ActiveTab.SkinPath + "Controls/";
+                        ControlPath = PortalSettings.ActiveTab.SkinPath.Substring(DotNetNuke.Common.Globals.ApplicationPath.Length) + "Controls/";
                     }
 
                     ControlSource = ControlName;
@@ -56,7 +56,7 @@ namespace Connect.DNN.Modules.SkinControls
                             if (Request.IsAuthenticated)
                             {
                                 ControlSource = "UserAuthenticated";
-                                Engine.Render(writer, UserController.GetCurrentUserInfo());
+                                Engine.Render(writer, UserController.Instance.GetCurrentUserInfo());
                             }
                             else
                             {
@@ -68,7 +68,7 @@ namespace Connect.DNN.Modules.SkinControls
                             if (Request.IsAuthenticated)
                             {
                                 ControlSource = "LoginAuthenticated";
-                                Engine.Render(writer, UserController.GetCurrentUserInfo());
+                                Engine.Render(writer, UserController.Instance.GetCurrentUserInfo());
                             }
                             else
                             {
