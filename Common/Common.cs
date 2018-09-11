@@ -17,7 +17,7 @@ namespace Connect.DNN.Modules.SkinControls.Common
                 }
                 else
                 {
-                    url = string.Format("{0}://{1}:{2}{3}", HttpContext.Current.Request.HttpMethod, HttpContext.Current.Request.Url.Host,
+                    url = string.Format("{0}://{1}:{2}{3}", HttpContext.Current.Request.Url.Scheme, HttpContext.Current.Request.Url.Host,
                         HttpContext.Current.Request.Url.Port, url);
                 }
             }

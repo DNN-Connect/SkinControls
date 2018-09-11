@@ -47,5 +47,27 @@ namespace Connect.DNN.Modules.SkinControls.Controllers
                     return Request.CreateResponse(HttpStatusCode.Unauthorized, loginStatus.ToString());
             }
         }
+
+        public class switchDTO
+        {
+            public string Username { get; set; }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [AllowAnonymous]
+        public HttpResponseMessage Switch(switchDTO postData)
+        {
+            if (UserInfo.IsSuperUser || UserInfo.IsInRole(PortalSettings.AdministratorRoleName))
+            {
+                var ipAddress = System.Web.HttpContext.Current.Request.UserHostAddress;
+                var user = UserController.GetUserByName(PortalSettings.PortalId, postData.Username);
+                if (user != null)
+                {
+                    UserController.UserLogin(PortalSettings.PortalId, user, PortalSettings.PortalName, ipAddress, false);
+                }
+            }
+            return Request.CreateResponse(HttpStatusCode.OK, "");
+        }
     }
 }
